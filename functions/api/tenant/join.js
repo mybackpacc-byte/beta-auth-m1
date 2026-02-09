@@ -4,9 +4,12 @@
 import { json, readJson, badRequest, methodNotAllowed } from "../../../src/auth/http.js";
 import { requireAuthContext } from "../../../src/auth/session.js";
 import { normalizeJoinCode } from "../../../src/auth/tenant.js";
+import { requireCsrfHeader } from "../../src/auth/csrf.js";   // adjust path per file depth
 
 export async function onRequest({ request, env }) {
   if (request.method !== "POST") return methodNotAllowed();
+const csrf = requireCsrfHeader(request);
+if (csrf) return csrf;
 
   const ctx = await requireAuthContext(env, request);
   if (ctx instanceof Response) return ctx;

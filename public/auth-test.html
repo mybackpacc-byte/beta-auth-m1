@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Auth Test</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:24px;max-width:900px}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    input{padding:10px 12px;border:1px solid #ccc;border-radius:10px;min-width:260px}
+    button{padding:10px 14px;border:0;border-radius:10px;background:#0b7a75;color:#fff;cursor:pointer}
+    button.secondary{background:#859998}
+    pre{background:#0b1220;color:#e6edf3;padding:14px;border-radius:12px;overflow:auto}
+    small{color:#444}
+  </style>
+</head>
+<body>
+  <h1>Auth v1 — Test</h1>
+  <p><small>Tip: Use a real-looking email. Password must be 8+ characters.</small></p>
+
+  <div class="row">
+    <input id="email" placeholder="email" autocomplete="username" />
+    <input id="password" placeholder="password" type="password" autocomplete="current-password" />
+  </div>
+
+  <div class="row" style="margin-top:12px">
+    <button onclick="register()">Register</button>
+    <button onclick="login()">Login</button>
+    <button class="secondary" onclick="me()">Me</button>
+    <button class="secondary" onclick="logout()">Logout</button>
+    <button class="secondary" onclick="health()">Health</button>
+  </div>
+
+  <h3>Output</h3>
+  <pre id="out">{}</pre>
+
+<script>
+  const out = (x) => document.getElementById('out').textContent = JSON.stringify(x, null, 2);
+  const val = (id) => document.getElementById(id).value;
+
+  async function call(path, opts = {}) {
+    const res = await fetch(path, {
+      ...opts,
+      headers: { 'Content-Type': 'application/json', ...(opts.headers||{}) },
+      credentials: 'include'
+    });
+    let data = null;
+    try { data = await res.json(); } catch { data = { ok:false, error:"NON_JSON_RESPONSE" }; }
+    return { status: res.status, data };
+  }
+
+  async function register() {
+    const { status, data } = await call('/api/register', {
+      method: 'POST',
+      body: JSON.stringify({ email: val('email'), password: val('password') })
+    });
+    out({ status, ...data });
+  }
+
+  async function login() {
+    const { status, data } = await call('/api/login', {
+      method: 'POST',
+      body: JSON.stringify({ email: val('email'), password: val('password') })
+    });
+    out({ status, ...data });
+  }
+
+  async function me() {
+    const { status, data } = await call('/api/me', { method: 'GET' });
+    out({ status, ...data });
+  }
+
+  async function logout() {
+    const { status, data } = await call('/api/logout', { method: 'POST', body: '{}' });
+    out({ status, ...data });
+  }
+
+  async function health() {
+    const r = await fetch('/api/health', { credentials:'include' });
+    const data = await r.json();
+    out({ status: r.status, ...data });
+  }
+</script>
+</body>
+</html>

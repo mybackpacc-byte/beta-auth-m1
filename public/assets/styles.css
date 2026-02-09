@@ -1,0 +1,102 @@
+:root{
+  --brand:#0b7a75;
+  --ink:#0f172a;
+  --muted:#64748b;
+  --bg:#f6f8f7;
+  --card:#ffffff;
+  --line:rgba(15,23,42,.10);
+  --danger:#b91c1c;
+  --ok:#166534;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+}
+
+a{color:var(--brand);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.wrap{
+  min-height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+.card{
+  width:100%;
+  max-width:440px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.06);
+  padding:18px;
+}
+
+.h1{font-size:20px;margin:0 0 6px}
+.sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.field{width:100%;margin:10px 0}
+label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+input{
+  width:100%;
+  padding:12px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  outline:none;
+  background:#fff;
+}
+input:focus{border-color:rgba(11,122,117,.55);box-shadow:0 0 0 3px rgba(11,122,117,.12)}
+
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+button{
+  appearance:none;
+  border:0;
+  border-radius:12px;
+  padding:12px 14px;
+  cursor:pointer;
+  font-weight:600;
+}
+.btn{
+  background:var(--brand);
+  color:#fff;
+  flex:1;
+  min-width:140px;
+}
+.btn.secondary{
+  background:#859998;
+}
+
+.msg{
+  margin-top:12px;
+  font-size:13px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:rgba(15,23,42,.02);
+  display:none;
+}
+.msg.ok{display:block;border-color:rgba(22,101,52,.25);background:rgba(22,101,52,.08);color:var(--ok)}
+.msg.err{display:block;border-color:rgba(185,28,28,.25);background:rgba(185,28,28,.08);color:var(--danger)}
+
+.hr{height:1px;background:var(--line);margin:16px 0}
+
+.kv{
+  font-size:13px;
+  color:var(--muted);
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 0;
+  border-bottom:1px dashed rgba(15,23,42,.12);
+}
+.kv strong{color:var(--ink);font-weight:700}
+
+.small{font-size:12px;color:var(--muted)}

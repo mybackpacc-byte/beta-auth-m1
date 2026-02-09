@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" style="max-width:560px">
+      <h1 class="h1">Dashboard</h1>
+      <p class="sub">You are logged in.</p>
+
+      <div class="kv"><span>Email</span><strong id="email">—</strong></div>
+      <div class="kv"><span>User ID</span><strong id="uid">—</strong></div>
+
+      <div class="btnrow" style="margin-top:14px">
+        <button class="btn secondary" onclick="location.href='/'">Home</button>
+        <button class="btn" id="logoutBtn">Logout</button>
+      </div>
+
+      <div id="msg" class="msg"></div>
+
+      <div class="hr"></div>
+      <p class="small">
+        Next milestone: tenants + join codes + roles (teacher/admin/student).
+      </p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { requireAuth, api, setMsg, go } from "/assets/app.js";
+
+    const emailEl = document.getElementById("email");
+    const uidEl = document.getElementById("uid");
+    const msg = document.getElementById("msg");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    await requireAuth({
+      onAuthed: (user) => {
+        emailEl.textContent = user.email || "—";
+        uidEl.textContent = user.id || "—";
+      }
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      setMsg(msg, "ok", "Logging out...");
+      logoutBtn.disabled = true;
+      await api("/api/logout", { method: "POST", body: "{}" });
+      go("/login.html");
+    });
+  </script>
+</body>
+</html>

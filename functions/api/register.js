@@ -1,6 +1,7 @@
 // functions/api/register.js
 import { json, readJson, badRequest, methodNotAllowed, serverError } from "../../src/auth/http.js";
 import { hashPassword } from "../../src/auth/crypto.js";
+import { requireCsrfHeader } from "../../src/auth/csrf.js";   // adjust path per file depth
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
@@ -13,6 +14,8 @@ function looksLikeEmail(email) {
 export async function onRequest({ request, env }) {
   if (request.method !== "POST") return methodNotAllowed();
   if (!env?.DB) return serverError("DB binding missing (bind D1 as variable name DB).");
+const csrf = requireCsrfHeader(request);
+if (csrf) return csrf;
 
   const body = await readJson(request);
   if (!body) return badRequest("Expected JSON body.");

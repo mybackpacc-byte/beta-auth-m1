@@ -3,6 +3,7 @@ import { json, readJson, badRequest, methodNotAllowed, unauthorized, serverError
 import { getUserByEmail } from "../../src/auth/db.js";
 import { verifyPassword, randomBase64Url, hmacSha256Base64Url } from "../../src/auth/crypto.js";
 import { makeSessionSetCookie } from "../../src/auth/cookies.js";
+import { requireCsrfHeader } from "../../src/auth/csrf.js";   // adjust path per file depth
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
@@ -12,6 +13,8 @@ export async function onRequest({ request, env }) {
   if (request.method !== "POST") return methodNotAllowed();
   if (!env?.DB) return serverError("DB binding missing (bind D1 as variable name DB).");
   if (!env?.SESSION_SECRET) return serverError("SESSION_SECRET missing (set in Pages → Variables/Secrets).");
+  const csrf = requireCsrfHeader(request);
+if (csrf) return csrf;
 
   const body = await readJson(request);
   if (!body) return badRequest("Expected JSON body.");

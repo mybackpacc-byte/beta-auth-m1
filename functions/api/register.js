@@ -24,7 +24,13 @@ export async function onRequest({ request, env }) {
   if (password.length < 8) return badRequest("Password must be at least 8 characters.");
 
   const userId = crypto.randomUUID();
-  const passwordHash = await hashPassword(password);
+let passwordHash;
+try {
+  passwordHash = await hashPassword(password);
+} catch (e) {
+  console.error("hashPassword failed:", e);
+  return serverError("Password hashing failed (PBKDF2).");
+}
   const createdAt = Date.now();
 
   try {

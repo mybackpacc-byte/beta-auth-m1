@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Create account</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1 class="h1">Create account</h1>
+      <p class="sub">Register, then you’ll be taken to your dashboard.</p>
+
+      <div class="field">
+        <label>Email</label>
+        <input id="email" type="email" autocomplete="username" placeholder="you@example.com">
+      </div>
+
+      <div class="field">
+        <label>Password (8+ characters)</label>
+        <input id="password" type="password" autocomplete="new-password" placeholder="••••••••">
+      </div>
+
+      <div class="btnrow">
+        <button class="btn" id="btn">Create account</button>
+        <button class="btn secondary" onclick="location.href='/login.html'">I already have one</button>
+      </div>
+
+      <div id="msg" class="msg"></div>
+
+      <p class="small" style="margin-top:14px">
+        Tip: use a test email while building.
+      </p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { api, setMsg, prettyErr, go, nextOr } from "/assets/app.js";
+
+    const msg = document.getElementById("msg");
+    const btn = document.getElementById("btn");
+
+    function v(id){ return document.getElementById(id).value.trim(); }
+
+    btn.addEventListener("click", async () => {
+      setMsg(msg, "ok", "Working...");
+      btn.disabled = true;
+
+      const email = v("email");
+      const password = document.getElementById("password").value;
+
+      // 1) register
+      const r1 = await api("/api/register", {
+        method: "POST",
+        body: JSON.stringify({ email, password })
+      });
+
+      if (!(r1.status === 201 && r1.data?.ok)) {
+        setMsg(msg, "err", prettyErr(r1.status, r1.data));
+        btn.disabled = false;
+        return;
+      }
+
+      // 2) auto-login (better UX)
+      const r2 = await api("/api/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password })
+      });
+
+      if (!(r2.status === 200 && r2.data?.ok)) {
+        setMsg(msg, "err", "Account created, but login failed. Please login.");
+        btn.disabled = false;
+        return;
+      }
+
+      setMsg(msg, "ok", "Account created. Redirecting...");
+      go(nextOr("/dashboard.html"));
+    });
+  </script>
+</body>
+</html>

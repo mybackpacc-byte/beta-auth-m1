@@ -1,7 +1,7 @@
 // src/auth/crypto.js
 // Web Crypto helpers: PBKDF2 password hashing + HMAC for session tokens.
 
-const PBKDF2_ITERS = 120000; // reasonable balance for Workers/Pages runtime
+const PBKDF2_ITERS = 100000; // reasonable balance for Workers/Pages runtime
 const PBKDF2_HASH = "SHA-256";
 const DERIVED_KEY_BITS = 256; // 32 bytes
 

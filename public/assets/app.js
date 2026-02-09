@@ -14,9 +14,14 @@ export function setMsg(el, type, text) {
 export async function api(path, opts = {}) {
   const res = await fetch(path, {
     ...opts,
-    headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
+    headers: {
+      "Content-Type": "application/json",
++     "X-Requested-With": "Beta",
+      ...(opts.headers || {})
+    },
     credentials: "include",
   });
+
 
   let data = null;
   try { data = await res.json(); }

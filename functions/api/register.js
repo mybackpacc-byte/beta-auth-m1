@@ -14,8 +14,11 @@ function looksLikeEmail(email) {
 export async function onRequest({ request, env }) {
   if (request.method !== "POST") return methodNotAllowed();
   if (!env?.DB) return serverError("DB binding missing (bind D1 as variable name DB).");
-const csrf = requireCsrfHeader(request);
-if (csrf) return csrf;
+-const csrf = requireCsrfHeader(request);
+-if (csrf) return csrf;
++const csrf = await requireCsrfHeader(request);
++if (csrf) return csrf;
+
 
   const body = await readJson(request);
   if (!body) return badRequest("Expected JSON body.");

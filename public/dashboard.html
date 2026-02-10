@@ -8,91 +8,169 @@
 </head>
 <body>
   <div class="wrap">
-    <div class="card" style="max-width:760px">
-      <h1 class="h1">Dashboard</h1>
-      <p class="sub">Pick a school (tenant), join with a code, or create one.</p>
+    <div class="card" style="max-width:860px">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">
+        <div>
+          <h1 class="h1">Dashboard</h1>
+          <p class="sub">Your account + your schools (tenants).</p>
+        </div>
+        <div class="btnrow" style="margin:0">
+          <button class="btn secondary" id="switchBtn" style="display:none">Switch tenant</button>
+          <button class="btn secondary" id="logoutBtn">Logout</button>
+        </div>
+      </div>
 
       <div class="kv"><span>Email</span><strong id="email">—</strong></div>
       <div class="kv"><span>User ID</span><strong id="uid">—</strong></div>
 
       <div id="msg" class="msg"></div>
-
       <div class="hr"></div>
 
-      <!-- Active tenant summary -->
-      <div id="activeBox" style="display:none">
+      <!-- ====== TENANT HOME (only shows when active tenant selected) ====== -->
+      <div id="tenantHome" style="display:none">
         <div class="sectionTitle">Active tenant</div>
+
         <div class="tcard">
           <div class="tname" id="activeName">—</div>
           <div class="chips">
             <span class="chip ok" id="activeRole">—</span>
             <span class="chip" id="activeStatus">—</span>
+            <span class="chip" id="activeIdChip">—</span>
           </div>
-          <div class="mini">This is what the rest of the app will be scoped to (courses, exams, results).</div>
+          <div class="mini">
+            Next milestones will show courses, exams, attempts, and results here.
+          </div>
         </div>
 
-        <!-- Admin pending approvals -->
-        <div id="pendingBox" style="display:none;margin-top:14px">
-          <div class="sectionTitle">Pending join requests (admin)</div>
-          <div class="list" id="pendingList"></div>
+        <!-- ===== Admin panel ===== -->
+        <div id="adminPanel" style="display:none">
+          <div class="hr"></div>
+          <div class="sectionTitle">Admin tools</div>
+
+          <!-- Invite generator -->
+          <div class="tcard">
+            <div class="tname" style="margin-bottom:6px">Create join code</div>
+            <div class="mini" style="margin-bottom:10px">
+              Join codes can only grant <strong>student</strong> or <strong>teacher</strong>. Admin is by promotion only.
+            </div>
+
+            <div class="row">
+              <div class="field" style="flex:1;min-width:220px">
+                <label>Role for this code</label>
+                <select id="invRole" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:12px">
+                  <option value="student">Student</option>
+                  <option value="teacher">Teacher</option>
+                </select>
+              </div>
+
+              <div class="field" style="flex:1;min-width:220px">
+                <label style="display:flex;gap:10px;align-items:center;margin-top:22px">
+                  <input id="invRequireApproval" type="checkbox" checked style="width:auto">
+                  Require admin approval
+                </label>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="field" style="flex:1;min-width:220px">
+                <label>Max uses (optional)</label>
+                <input id="invMaxUses" placeholder="e.g. 300" inputmode="numeric" />
+              </div>
+              <div class="field" style="flex:1;min-width:220px">
+                <label>Expires in days (optional)</label>
+                <input id="invExpiresDays" placeholder="e.g. 30" inputmode="numeric" />
+              </div>
+            </div>
+
+            <div class="btnrow">
+              <button class="btn" id="invCreateBtn">Generate code</button>
+            </div>
+
+            <div id="invOut" style="display:none;margin-top:10px">
+              <div class="mini">Share this join code:</div>
+              <div class="codeBox" id="invCode">—</div>
+              <div class="mini" id="invMeta">—</div>
+            </div>
+          </div>
+
+          <!-- Pending approvals -->
+          <div class="tcard" style="margin-top:12px">
+            <div class="tname" style="margin-bottom:6px">Pending join requests</div>
+            <div class="list" id="pendingList"></div>
+            <div class="mini" id="pendingEmpty" style="display:none;margin-top:10px">No pending requests.</div>
+          </div>
+
+          <!-- Members management -->
+          <div class="tcard" style="margin-top:12px">
+            <div class="tname" style="margin-bottom:6px">Members</div>
+            <div class="mini" style="margin-bottom:10px">
+              Promote/demote roles. Safety: you can’t demote yourself from admin.
+            </div>
+            <div class="list" id="membersList"></div>
+            <div class="mini" id="membersEmpty" style="display:none;margin-top:10px">No members found.</div>
+          </div>
         </div>
 
         <div class="hr"></div>
       </div>
 
-      <!-- Join tenant -->
-      <div class="sectionTitle">Join a tenant</div>
-      <div class="inline">
-        <input id="joinCode" placeholder="Enter join code e.g. BETA-ABC123" />
-        <button class="btn secondary" id="joinBtn">Join</button>
+      <!-- ====== NO ACTIVE TENANT: JOIN / CREATE / PICK ====== -->
+      <div id="noTenant">
+        <div class="sectionTitle">Join a tenant</div>
+        <div class="inline">
+          <input id="joinCode" placeholder="Enter join code e.g. BETA-K7QW9M" />
+          <button class="btn secondary" id="joinBtn">Join</button>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="sectionTitle">Create a tenant</div>
+        <div class="field">
+          <label>Tenant name</label>
+          <input id="tenantName" placeholder="e.g. Ridge Nursing School" />
+        </div>
+        <div class="field">
+          <label style="display:flex;gap:10px;align-items:center">
+            <input id="requireApproval" type="checkbox" checked style="width:auto">
+            Require admin approval for default join code
+          </label>
+        </div>
+        <div class="btnrow">
+          <button class="btn" id="createBtn">Create tenant</button>
+        </div>
+
+        <div id="createOut" style="display:none;margin-top:12px">
+          <div class="sectionTitle">Default join code</div>
+          <div class="codeBox" id="createCode">—</div>
+          <div class="mini" id="createMeta">—</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="sectionTitle">Your tenants</div>
+        <div class="cards" id="tenantCards"></div>
       </div>
-
-      <div class="hr"></div>
-
-      <!-- Create tenant -->
-      <div class="sectionTitle">Create a tenant</div>
-      <div class="field">
-        <label>Tenant name</label>
-        <input id="tenantName" placeholder="e.g. Ridge Nursing School" />
-      </div>
-
-      <div class="field">
-        <label style="display:flex;gap:10px;align-items:center">
-          <input id="requireApproval" type="checkbox" checked style="width:auto">
-          Require admin approval for join code
-        </label>
-      </div>
-
-      <div class="btnrow">
-        <button class="btn" id="createBtn">Create tenant</button>
-        <button class="btn secondary" id="logoutBtn">Logout</button>
-      </div>
-
-      <div id="inviteBox" style="display:none;margin-top:12px">
-        <div class="sectionTitle">Invite code</div>
-        <div class="codeBox" id="inviteCode">—</div>
-        <div class="mini">Share this code with students. If approval is on, you’ll approve them here.</div>
-      </div>
-
-      <div class="hr"></div>
-
-      <!-- Tenant list / picker -->
-      <div class="sectionTitle">Your tenants</div>
-      <div class="cards" id="tenantCards"></div>
     </div>
   </div>
 
   <script type="module">
     import { requireAuth, api, setMsg, prettyErr, go } from "/assets/app.js";
 
+    // ===== DOM =====
     const emailEl = document.getElementById("email");
     const uidEl = document.getElementById("uid");
     const msg = document.getElementById("msg");
 
-    const activeBox = document.getElementById("activeBox");
+    const switchBtn = document.getElementById("switchBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    const tenantHome = document.getElementById("tenantHome");
+    const noTenant = document.getElementById("noTenant");
+
     const activeName = document.getElementById("activeName");
     const activeRole = document.getElementById("activeRole");
     const activeStatus = document.getElementById("activeStatus");
+    const activeIdChip = document.getElementById("activeIdChip");
 
     const tenantCards = document.getElementById("tenantCards");
     const joinBtn = document.getElementById("joinBtn");
@@ -101,15 +179,28 @@
     const createBtn = document.getElementById("createBtn");
     const tenantName = document.getElementById("tenantName");
     const requireApproval = document.getElementById("requireApproval");
+    const createOut = document.getElementById("createOut");
+    const createCode = document.getElementById("createCode");
+    const createMeta = document.getElementById("createMeta");
 
-    const inviteBox = document.getElementById("inviteBox");
-    const inviteCode = document.getElementById("inviteCode");
+    const adminPanel = document.getElementById("adminPanel");
 
-    const pendingBox = document.getElementById("pendingBox");
+    const invRole = document.getElementById("invRole");
+    const invRequireApproval = document.getElementById("invRequireApproval");
+    const invMaxUses = document.getElementById("invMaxUses");
+    const invExpiresDays = document.getElementById("invExpiresDays");
+    const invCreateBtn = document.getElementById("invCreateBtn");
+    const invOut = document.getElementById("invOut");
+    const invCode = document.getElementById("invCode");
+    const invMeta = document.getElementById("invMeta");
+
     const pendingList = document.getElementById("pendingList");
+    const pendingEmpty = document.getElementById("pendingEmpty");
 
-    const logoutBtn = document.getElementById("logoutBtn");
+    const membersList = document.getElementById("membersList");
+    const membersEmpty = document.getElementById("membersEmpty");
 
+    // ===== State =====
     let QA_USER = null;
     let STATE = { active_tenant_id: null, tenants: [] };
 
@@ -121,6 +212,27 @@
       }
     });
 
+    // ===== Helpers =====
+    function escapeHtml(s){
+      return String(s||"").replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[c]));
+    }
+
+    function findActive() {
+      const id = STATE.active_tenant_id;
+      if (!id) return null;
+      return STATE.tenants.find(t => t.tenant_id === id) || null;
+    }
+
+    function nInt(v) {
+      const s = String(v || "").trim();
+      if (!s) return null;
+      const n = Number(s);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    // ===== Load tenants =====
     async function loadTenants() {
       const r = await api("/api/tenants", { method: "GET" });
       if (!(r.status === 200 && r.data?.ok)) {
@@ -130,41 +242,52 @@
       STATE.active_tenant_id = r.data.active_tenant_id || null;
       STATE.tenants = r.data.tenants || [];
       render();
-      await maybeLoadPending();
-    }
-
-    function findActive() {
-      const id = STATE.active_tenant_id;
-      if (!id) return null;
-      return STATE.tenants.find(t => t.tenant_id === id) || null;
+      await maybeAutoSelect();
+      await maybeAdminLoads();
     }
 
     async function maybeAutoSelect() {
-      // If no active tenant stored, and user has exactly 1 ACTIVE tenant, set it.
+      // If no active tenant stored, and exactly 1 ACTIVE tenant exists, set it.
       if (STATE.active_tenant_id) return;
       const activeOnes = STATE.tenants.filter(t => t.status === "active");
       if (activeOnes.length === 1) {
-        await api("/api/tenant/select", {
-          method: "POST",
-          body: JSON.stringify({ tenant_id: activeOnes[0].tenant_id })
-        });
-        await loadTenants();
+        await api("/api/tenant/select", { method: "POST", body: JSON.stringify({ tenant_id: activeOnes[0].tenant_id }) });
+        const r2 = await api("/api/tenants", { method: "GET" });
+        if (r2.status === 200 && r2.data?.ok) {
+          STATE.active_tenant_id = r2.data.active_tenant_id || null;
+          STATE.tenants = r2.data.tenants || [];
+        }
+        render();
       }
     }
 
     function render() {
+      createOut.style.display = "none";
+      invOut.style.display = "none";
       tenantCards.innerHTML = "";
-      inviteBox.style.display = "none";
 
       const active = findActive();
+
       if (active) {
-        activeBox.style.display = "block";
+        // show tenant home
+        tenantHome.style.display = "block";
+        noTenant.style.display = "none";
+        switchBtn.style.display = "inline-block";
+
         activeName.textContent = active.name || "—";
         activeRole.textContent = `Role: ${active.role}`;
         activeStatus.textContent = `Status: ${active.status}`;
-      } else {
-        activeBox.style.display = "none";
+        activeIdChip.textContent = `ID: ${active.tenant_id.slice(0,8)}…`;
+
+        // admin panel toggle
+        adminPanel.style.display = (active.status === "active" && active.role === "admin") ? "block" : "none";
+        return;
       }
+
+      // no active tenant selected -> show join/create/picker
+      tenantHome.style.display = "none";
+      noTenant.style.display = "block";
+      switchBtn.style.display = "none";
 
       if (!STATE.tenants.length) {
         tenantCards.innerHTML = `<div class="mini">No tenants yet. Join with a code or create one above.</div>`;
@@ -172,7 +295,6 @@
       }
 
       for (const t of STATE.tenants) {
-        const isActive = STATE.active_tenant_id === t.tenant_id;
         const canSelect = t.status === "active";
 
         const card = document.createElement("div");
@@ -182,12 +304,9 @@
           <div class="chips">
             <span class="chip ok">Role: ${escapeHtml(t.role)}</span>
             <span class="chip ${t.status === "active" ? "ok" : "warn"}">Status: ${escapeHtml(t.status)}</span>
-            ${isActive ? `<span class="chip ok">ACTIVE</span>` : ``}
           </div>
           <div class="btnrow">
-            <button class="btn ${canSelect ? "" : "secondary"}" ${canSelect ? "" : "disabled"} data-tenant="${t.tenant_id}">
-              ${canSelect ? (isActive ? "Selected" : "Select") : "Pending approval"}
-            </button>
+            <button class="btn ${canSelect ? "" : "secondary"}" ${canSelect ? "" : "disabled"}>${canSelect ? "Select" : "Pending approval"}</button>
           </div>
         `;
 
@@ -195,14 +314,8 @@
         btn.addEventListener("click", async () => {
           if (!canSelect) return;
           setMsg(msg, "ok", "Selecting tenant...");
-          const r = await api("/api/tenant/select", {
-            method: "POST",
-            body: JSON.stringify({ tenant_id: t.tenant_id })
-          });
-          if (!(r.status === 200 && r.data?.ok)) {
-            setMsg(msg, "err", prettyErr(r.status, r.data));
-            return;
-          }
+          const r = await api("/api/tenant/select", { method: "POST", body: JSON.stringify({ tenant_id: t.tenant_id }) });
+          if (!(r.status === 200 && r.data?.ok)) { setMsg(msg, "err", prettyErr(r.status, r.data)); return; }
           await loadTenants();
           setMsg(msg, "ok", "Tenant selected.");
         });
@@ -211,105 +324,161 @@
       }
     }
 
-    async function maybeLoadPending() {
-      pendingBox.style.display = "none";
+    // ===== Admin data loads =====
+    async function maybeAdminLoads() {
       pendingList.innerHTML = "";
+      membersList.innerHTML = "";
+      pendingEmpty.style.display = "none";
+      membersEmpty.style.display = "none";
 
       const active = findActive();
       if (!active) return;
-      if (active.status !== "active") return;
-      if (active.role !== "admin") return;
+      if (!(active.status === "active" && active.role === "admin")) return;
 
-      const r = await api("/api/tenant/pending", { method: "GET" });
-      if (!(r.status === 200 && r.data?.ok)) return;
-
-      const items = r.data.pending || [];
-      if (!items.length) return;
-
-      pendingBox.style.display = "block";
-
-      for (const p of items) {
-        const row = document.createElement("div");
-        row.className = "listRow";
-        row.innerHTML = `
-          <div>
-            <div><strong>${escapeHtml(p.email)}</strong></div>
-            <div class="mini">User ID: ${escapeHtml(p.user_id)}</div>
-          </div>
-          <div>
-            <button class="btn secondary" data-uid="${p.user_id}">Approve</button>
-          </div>
-        `;
-        row.querySelector("button").addEventListener("click", async () => {
-          setMsg(msg, "ok", "Approving...");
-          const rr = await api("/api/tenant/approve", {
-            method: "POST",
-            body: JSON.stringify({ user_id: p.user_id })
+      // pending list
+      const p = await api("/api/tenant/pending", { method: "GET" });
+      if (p.status === 200 && p.data?.ok) {
+        const items = p.data.pending || [];
+        if (!items.length) pendingEmpty.style.display = "block";
+        for (const it of items) {
+          const row = document.createElement("div");
+          row.className = "listRow";
+          row.innerHTML = `
+            <div>
+              <div><strong>${escapeHtml(it.email)}</strong></div>
+              <div class="mini">User ID: ${escapeHtml(it.user_id)}</div>
+            </div>
+            <div><button class="btn secondary">Approve</button></div>
+          `;
+          row.querySelector("button").addEventListener("click", async () => {
+            setMsg(msg, "ok", "Approving...");
+            const rr = await api("/api/tenant/approve", { method: "POST", body: JSON.stringify({ user_id: it.user_id }) });
+            if (!(rr.status === 200 && rr.data?.ok)) { setMsg(msg, "err", prettyErr(rr.status, rr.data)); return; }
+            setMsg(msg, "ok", "Approved.");
+            await loadTenants(); // refresh everything
           });
-          if (!(rr.status === 200 && rr.data?.ok)) {
-            setMsg(msg, "err", prettyErr(rr.status, rr.data));
-            return;
-          }
-          setMsg(msg, "ok", "Approved.");
-          await loadTenants();
-        });
-        pendingList.appendChild(row);
+          pendingList.appendChild(row);
+        }
+      }
+
+      // members list
+      const m = await api("/api/tenant/members", { method: "GET" });
+      if (m.status === 200 && m.data?.ok) {
+        const members = m.data.members || [];
+        if (!members.length) membersEmpty.style.display = "block";
+
+        for (const it of members) {
+          const row = document.createElement("div");
+          row.className = "listRow";
+
+          const you = (it.user_id === QA_USER.id);
+          const roleLabel = `${it.role}${you ? " (you)" : ""}`;
+          const statusLabel = it.status;
+
+          row.innerHTML = `
+            <div style="min-width:0">
+              <div><strong>${escapeHtml(it.email)}</strong></div>
+              <div class="mini">Role: ${escapeHtml(roleLabel)} • Status: ${escapeHtml(statusLabel)}</div>
+              <div class="mini">User ID: ${escapeHtml(it.user_id)}</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+              <select style="padding:10px;border:1px solid var(--line);border-radius:12px" ${you ? "disabled" : ""}>
+                <option value="student" ${it.role==="student"?"selected":""}>Student</option>
+                <option value="teacher" ${it.role==="teacher"?"selected":""}>Teacher</option>
+                <option value="admin" ${it.role==="admin"?"selected":""}>Admin</option>
+              </select>
+              <button class="btn secondary" ${you ? "disabled" : ""}>Save</button>
+            </div>
+          `;
+
+          const sel = row.querySelector("select");
+          const btn = row.querySelector("button");
+
+          btn.addEventListener("click", async () => {
+            const newRole = sel.value;
+            setMsg(msg, "ok", "Updating role...");
+            const rr = await api("/api/tenant/member/role", {
+              method: "POST",
+              body: JSON.stringify({ user_id: it.user_id, role: newRole })
+            });
+            if (!(rr.status === 200 && rr.data?.ok)) { setMsg(msg, "err", prettyErr(rr.status, rr.data)); return; }
+            setMsg(msg, "ok", "Role updated.");
+            await loadTenants();
+          });
+
+          membersList.appendChild(row);
+        }
       }
     }
 
-    joinBtn.addEventListener("click", async () => {
+    // ===== Actions =====
+    joinBtn?.addEventListener("click", async () => {
       const code = joinCode.value.trim();
       if (!code) { setMsg(msg, "err", "Enter a join code."); return; }
 
       setMsg(msg, "ok", "Joining...");
-      const r = await api("/api/tenant/join", {
-        method: "POST",
-        body: JSON.stringify({ code })
-      });
+      const r = await api("/api/tenant/join", { method: "POST", body: JSON.stringify({ code }) });
+      if (!(r.status === 200 && r.data?.ok)) { setMsg(msg, "err", prettyErr(r.status, r.data)); return; }
 
-      if (!(r.status === 200 && r.data?.ok)) {
-        setMsg(msg, "err", prettyErr(r.status, r.data));
-        return;
-      }
-
-      if (r.data.pending) {
-        setMsg(msg, "ok", "Join request sent. Waiting for admin approval.");
-      } else {
-        setMsg(msg, "ok", "Joined successfully. Tenant is now active.");
-      }
+      if (r.data.pending) setMsg(msg, "ok", "Join request sent. Waiting for admin approval.");
+      else setMsg(msg, "ok", "Joined successfully.");
 
       joinCode.value = "";
       await loadTenants();
-      await maybeAutoSelect();
     });
 
-    createBtn.addEventListener("click", async () => {
+    createBtn?.addEventListener("click", async () => {
       const name = tenantName.value.trim();
       if (!name) { setMsg(msg, "err", "Enter a tenant name."); return; }
 
       setMsg(msg, "ok", "Creating tenant...");
       const r = await api("/api/tenant/create", {
         method: "POST",
-        body: JSON.stringify({
-          name,
-          require_approval: requireApproval.checked
-        })
+        body: JSON.stringify({ name, require_approval: requireApproval.checked })
       });
 
-      if (!((r.status === 201 || r.status === 200) && r.data?.ok)) {
-        setMsg(msg, "err", prettyErr(r.status, r.data));
-        return;
-      }
+      if (!(r.status === 201 && r.data?.ok)) { setMsg(msg, "err", prettyErr(r.status, r.data)); return; }
 
       setMsg(msg, "ok", "Tenant created.");
       tenantName.value = "";
 
       if (r.data.invite?.code) {
-        inviteBox.style.display = "block";
-        inviteCode.textContent = r.data.invite.code;
+        createOut.style.display = "block";
+        createCode.textContent = r.data.invite.code;
+        createMeta.textContent = `Requires approval: ${r.data.invite.require_approval ? "Yes" : "No"}`;
       }
 
       await loadTenants();
+    });
+
+    invCreateBtn?.addEventListener("click", async () => {
+      setMsg(msg, "ok", "Generating invite...");
+      const payload = {
+        role: invRole.value,
+        require_approval: invRequireApproval.checked,
+        max_uses: nInt(invMaxUses.value),
+        expires_days: nInt(invExpiresDays.value),
+      };
+
+      const r = await api("/api/tenant/invite/create", { method: "POST", body: JSON.stringify(payload) });
+      if (!(r.status === 201 && r.data?.ok)) { setMsg(msg, "err", prettyErr(r.status, r.data)); return; }
+
+      invOut.style.display = "block";
+      invCode.textContent = r.data.invite.code;
+      invMeta.textContent =
+        `Role: ${r.data.invite.role} • Approval: ${r.data.invite.require_approval ? "Yes" : "No"}`
+        + (r.data.invite.max_uses ? ` • Max uses: ${r.data.invite.max_uses}` : "")
+        + (r.data.invite.expires_at ? ` • Expires: ${new Date(r.data.invite.expires_at).toLocaleDateString()}` : "");
+
+      setMsg(msg, "ok", "Invite code created.");
+    });
+
+    switchBtn.addEventListener("click", async () => {
+      setMsg(msg, "ok", "Switching...");
+      const r = await api("/api/tenant/clear", { method: "POST", body: "{}" });
+      if (!(r.status === 200 && r.data?.ok)) { setMsg(msg, "err", prettyErr(r.status, r.data)); return; }
+      await loadTenants();
+      setMsg(msg, "ok", "Pick a tenant.");
     });
 
     logoutBtn.addEventListener("click", async () => {
@@ -319,14 +488,7 @@
       go("/login.html");
     });
 
-    function escapeHtml(s){
-      return String(s||"").replace(/[&<>"']/g, (c) => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-      }[c]));
-    }
-
     await loadTenants();
-    await maybeAutoSelect();
   </script>
 </body>
 </html>
